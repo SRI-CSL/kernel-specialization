@@ -133,6 +133,7 @@ for path in excluded_dirs:
     excluded.append(pathsplit)
 
 out = open("build_script.sh","w+")
+compile_cmd = open(build_dir+"compile_occam_final.sh","w+")
 link_args = open(build_dir+"link-args","w+")
 final_link_args = open(build_dir+"link-args-final","w+")
 occam_manifest = open(build_dir+"kernel-manifest.json","w+")
@@ -151,10 +152,18 @@ archbi=["lib","pci","video","power"]
 write_script(excluded,0,"")
 
 # Dealing with both lib files 
+# link_args.write(" lib/lib.a.bc arch/x86/lib/lib.a.bc ")
+# final_link_args.write(slashing_dir+"/lib_lib.a.bc "+ slashing_dir+"/arch_x86_lib_lib.a.bc ")
+# manifest_bclist.append("lib/lib.a.bc")
+# manifest_bclist.append("arch/x86/lib/lib.a.bc")
+
+# Abubakar : since unslashed versions of the two libs are being used
+#            these files need to be treated as native_libs
+#            added to the native_libs at the end
 link_args.write(" lib/lib.a.bc arch/x86/lib/lib.a.bc ")
-final_link_args.write(slashing_dir+"/lib_lib.a.bc "+ slashing_dir+"/arch_x86_lib_lib.a.bc ")
-manifest_bclist.append("lib/lib.a.bc")
-manifest_bclist.append("arch/x86/lib/lib.a.bc")
+final_link_args.write(" lib/lib.a.bc arch/x86/lib/lib.a.bc ")
+
+
 
 out.writelines("get-bc -b lib/lib.a \n ")
 out.writelines("mkdir -p $build_home/lib\n")
@@ -193,12 +202,23 @@ out.writelines("cd $build_home \n")
 link_args.write(" .tmp_kallsyms2.o")
 final_link_args.write(" .tmp_kallsyms2.o")
 manifest_olist.append(".tmp_kallsyms2.o")
+
 # Final linking command
-out.writelines("clang -Wl,-T,vmlinux.lds,--whole-archive " +arg_list+" ")
+out.writelines("# clang -Wl,-T,vmlinux.lds,--whole-archive " +arg_list+" ")
 for sto in standalone_objects:
     out.writelines(sto+" ")
 out.writelines("@link-args ")
-out.writelines("-o vmlinux")
+out.writelines("-o vmlinux\n")
+
+
+compile_cmd.writelines("clang -Wl,-T,vmlinux.lds,--whole-archive " +arg_list+" ")
+for sto in standalone_objects:
+    compile_cmd.writelines(sto+" ")
+compile_cmd.writelines("@link-args-final ")
+compile_cmd.writelines("-o vmlinux")
+
+out.writelines("chmod a+x $build_home/compile_occam_final.sh")
+
 
 # Manifest writing
 occam_manifest.write('{ "main" :  "built-ins/initbi.o.bc"\n, "binary"  : "vmlinux"\n, "modules"    : [')
@@ -209,10 +229,12 @@ if len(manifest_bclist)>1:
     occam_manifest.write('"'+manifest_bclist[-1]+'"')
 occam_manifest.write(']\n, "native_libs" : [')
 
+for sto in standalone_objects:
+    occam_manifest.write('"' + sto + '", ')
 for obj in manifest_olist[:-1]:
     occam_manifest.write('"'+obj+'",')
 if manifest_olist:
-    occam_manifest.write('"'+manifest_olist[-1]+'"')
-
+    occam_manifest.write('"'+manifest_olist[-1]+'", ')
+occam_manifest.write('"lib/lib.a.bc", "arch/x86/lib/lib.a.bc"')
 occam_manifest.write(']\n, "args" : []\n, "ldflags"    : ["'+ arg_list +'"]\n, "name"    : "kernel" \n }')
 print "Preparation work done, launch the build_script.sh to start the extraction"
