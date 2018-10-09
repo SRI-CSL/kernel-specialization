@@ -71,6 +71,10 @@ python ../built-in-parsing.py {full-path-to-directory-where-the-bitcode-should-b
 
 The "build_script.sh" would have been created by the previous command which copies all the bitcodes into the build directory and links them to create the vmlinux file. 
 
+```
+bash build_script.sh
+```
+
 
 #### Installing the kernel
 
