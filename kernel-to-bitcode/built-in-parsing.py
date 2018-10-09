@@ -204,7 +204,7 @@ final_link_args.write(" .tmp_kallsyms2.o")
 manifest_olist.append(".tmp_kallsyms2.o")
 
 # Final linking command
-out.writelines("# clang -Wl,-T,vmlinux.lds,--whole-archive " +arg_list+" ")
+out.writelines("clang -Wl,-T,vmlinux.lds,--whole-archive " +arg_list+" ")
 for sto in standalone_objects:
     out.writelines(sto+" ")
 out.writelines("@link-args ")
