@@ -11,6 +11,8 @@ cp ../init-utilities/* .
 
 OCCAM_LOGFILE=occam.log slash --work-dir=slashing --keep-external=keep.list --no-strip ${1} 
 cp slashing/libc.a-final.bc .
+
+
 cd ../../LLVMPasses/ && make build_ParseSyscalls && cd ../examples/thttpd/
 opt -load ../../LLVMPasses/build/ParseSyscalls.so -asm-analyze -output-file-name=${2} libc.a-final.bc -o tmp.bc 
 
