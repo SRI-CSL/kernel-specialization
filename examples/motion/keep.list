@@ -1,0 +1,11 @@
+_start_c
+__libc_start_main
+
+ceil
+rint
+powf
+round
+floor
+sincos
+sincosf
+trunc

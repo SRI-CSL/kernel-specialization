@@ -1,0 +1,5 @@
+jpeg sources/libjpeg-turbo-1.5.2/.libs/libjpeg.a
+microhttpd sources/libmicrohttpd-0.9.59/src/microhttpd/.libs/libmicrohttpd.a
+webp sources/libwebp-0.6.1/src/.libs/libwebp.a sources/libwebp-0.6.1/src/mux/.libs/libwebpmux.a
+av sources/ffmpeg-3.4.4/libswresample/libswresample.a sources/ffmpeg-3.4.4/libavformat/libavformat.a sources/ffmpeg-3.4.4/libswscale/libswscale.a sources/ffmpeg-3.4.4//libavutil/libavutil.a sources/ffmpeg-3.4.4/libavcodec/libavcodec.a sources/ffmpeg-3.4.4/libavfilter/libavfilter.a sources/ffmpeg-3.4.4/libavdevice/libavdevice.a
+bz2 sources/bzip2-1.0.6/libbz2.a

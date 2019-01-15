@@ -1,0 +1,42 @@
+#!/bin/sh
+cc=gclang
+libc="/usr/local/musl"
+libc_inc1="/usr/local/musl/include"
+libc_inc2="/usr/include"
+libc_inc3="/usr/include/x86_64-linux-gnu"
+libc_inc4="/usr/lib/clang/5.0.1/include"
+
+libc_lib="/usr/local/musl/lib"
+thisdir="`cd "$(dirname "$0")"; pwd`"
+
+# prevent clang from running the linker (and erroring) on no input.
+sflags=
+eflags=
+for x ; do
+    case "$x" in
+        -l*) input=1 ;;
+        *) input= ;;
+    esac
+    if test "$input" ; then
+        sflags="-l-user-start"
+        eflags="-l-user-end"
+        break
+    fi
+done
+exec $cc \
+    -B"$thisdir" \
+    -fuse-ld=musl-clang \
+    -static-libgcc \
+    -nostdinc \
+    --sysroot="$libc" \
+    -isystem "$libc_inc1" \
+    -isystem "$libc_inc2" \
+    -isystem "$libc_inc3" \
+    -isystem "$libc_inc4" \
+    -L-user-start \
+    $sflags \
+    "$@" \
+    $eflags \
+    -L"$libc_lib" \
+    -L"/usr/lib/x86_64-linux-gnu/"\
+    -L-user-end
