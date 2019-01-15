@@ -1,0 +1,9 @@
+{
+	"binary": "libc", 
+	"native_libs": [], 
+	"name": "thttpd", 
+	"args": [],
+	"modules": ["libc.a.bc"], 
+	"ldflags": [], 
+	"main": "thttpd.bc"
+}

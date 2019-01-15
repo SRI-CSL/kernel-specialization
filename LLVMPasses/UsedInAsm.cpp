@@ -21,14 +21,28 @@
 using namespace llvm;
 using namespace std;
 
-static cl::opt<string> oname("output-file-name",
-          cl::desc("output file name"));
-
 namespace {
 
-  struct ParseSyscalls : public ModulePass {
+  struct UsedInAsm : public ModulePass {
     static char ID;
-    ParseSyscalls() : ModulePass(ID) {}
+    UsedInAsm() : ModulePass(ID) {}
+    bool isDelim(char c) {
+      return (c == '_' || (c >= 48 && c <= 57) || (c >= 65 && c <= 90) || (c >= 97 && c <= 122));
+    }
+    vector<string> getTokens(string asmString) {
+      string currString;
+      vector<string> tokens;
+      for(unsigned i = 0; i < asmString.size(); i++) {
+        char c = asmString[i];
+        if(isDelim(c))
+          currString += c;
+        else {
+          tokens.push_back(currString);
+          currString = "";
+        } 
+      }
+      return tokens;
+    }
     bool runOnModule(Module& M) {
       set<int> sysIds;
       for(Module::iterator mit = M.getFunctionList().begin(); mit != M.getFunctionList().end(); ++mit) {
@@ -39,24 +53,20 @@ namespace {
             if(CallInst * callInst = dyn_cast<CallInst>(&*it)) {
               if(callInst->isInlineAsm()) {
                 const InlineAsm * IA = cast<InlineAsm>(callInst->getCalledValue());            
-                if(IA->getAsmString() == "syscall") {
-                  if(ConstantInt * CI = dyn_cast<ConstantInt>(callInst->getOperand(0))) 
-                    sysIds.insert(CI->getZExtValue());
-                  else 
-                    errs() << "skipping non constant in " << func->getName() << " " << *callInst << "\n";
+                if(IA->getAsmString() != "syscall") {
+                  vector<string> tokens = getTokens(IA->getAsmString());
+                  for(unsigned i = 0; i < tokens.size(); i++)
+                    errs() << tokens[i] << "\n";
                 }
               }
             }      
           }
         }
       }
-      ofstream ofile;
-      ofile.open(oname);
-      for(auto val : sysIds) ofile << val << "\n";     
       return true;
     }
   };
 }
 
-char ParseSyscalls::ID = 0;
-static RegisterPass<ParseSyscalls> X("parse-asm", "Simplifying library calls", false, false);
+char UsedInAsm::ID = 0;
+static RegisterPass<UsedInAsm> X("used-in-asm", "Simplifying library calls", false, false);
