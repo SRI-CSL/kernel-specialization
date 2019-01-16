@@ -7,18 +7,17 @@ get-bc -b thttpd
 cp thttpd.bc ..
 cd ..
 
-cp ../init-utilities/* .
+get-bc -b ${2}/lib/libc.a
+cp ${2}/lib/libc.a.bc .
 
-OCCAM_LOGFILE=occam.log slash --work-dir=slashing --keep-external=keep.list --no-strip ${1} 
+../../occam_pipe_line/run_occam.sh $PWD thttpd.manifest keep.list ${3}
+
 cp slashing/libc.a-final.bc .
 
 
+
 cd ../../LLVMPasses/ && make build_ParseSyscalls && cd ../examples/thttpd/
-opt -load ../../LLVMPasses/build/ParseSyscalls.so -asm-analyze -output-file-name=${2} libc.a-final.bc -o tmp.bc 
+opt -load ../../LLVMPasses/build/ParseSyscalls.so -parse-asm -output-file-name=${1} libc.a-final.bc -o tmp.bc 
 
 # hard-coding system call Id for non-constant syscall case in libc
-echo "105" >> ${2}
-
-python ../generateSysCallList.py ${2} ../syscallIdToName ${3}
-
-cat ../necessary_symbols >> ${3}
+echo "105" >> ${1}

@@ -1,9 +1,0 @@
-{
-	"binary": "libc-slashed", 
-	"native_libs": [], 
-	"name": "libc", 
-	"args": [],
-	"modules": ["runlevel.bc", "bootlogd.bc", "sulogin.bc", "utmpdump.bc", "fstab-decode.bc", "shutdown.bc", "init.bc", "last.bc", "halt.bc", "wall.bc", "mesg.bc", "thttpd.bc"], 
-	"ldflags": [], 
-	"main": "libc.a.bc"
-}
